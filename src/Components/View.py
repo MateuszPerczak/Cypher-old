@@ -64,22 +64,28 @@ class Theme:
             'big.TLabel', font=('catamaran 18 bold'))
         self.parent.layout.configure(
             'small.dark.TLabel', font=('catamaran 9 bold'))
+        self.parent.layout.configure(
+            'small.TLabel', font=('catamaran 9 bold'), background=self.colors[theme][1])
         # button
         self.parent.layout.configure('TButton', background=self.colors[theme][0], relief='flat', font=(
             'catamaran 13 bold'), foreground=self.colors[theme][3], anchor='w', width=10)
         self.parent.layout.map('TButton', background=[('pressed', '!disabled', self.colors[theme][1]), (
             'active', self.colors[theme][1]), ('selected', self.colors[theme][1])])
+        self.parent.layout.configure('center.TButton', anchor='c')
         # entry
         self.parent.layout.configure('TEntry', background=self.colors[theme][0], insertcolor=self.colors[theme][3], foreground=self.colors[theme]
                                      [3], fieldbackground=self.colors[theme][0], selectforeground=self.colors[theme][3], selectbackground=self.colors[theme][2])
         self.parent.layout.map('TEntry', foreground=[
             ('active', '!disabled', 'disabled', self.colors[theme][3])])
-
         # scrollbar
         self.parent.layout.configure('Vertical.TScrollbar', gripcount=0, relief='flat', background=self.colors[theme][1], darkcolor=self.colors[
                                      theme][1], lightcolor=self.colors[theme][1], troughcolor=self.colors[theme][1], bordercolor=self.colors[theme][1])
         self.parent.layout.map('Vertical.TScrollbar', background=[('pressed', '!disabled', self.colors[theme][0]), (
             'disabled', self.colors[theme][1]), ('active', self.colors[theme][0]), ('!active', self.colors[theme][0])])
+
+        # progressbar
+        self.parent.layout.configure('Horizontal.TProgressbar', background=self.colors[theme][1], lightcolor=self.colors[theme][0],
+                                     darkcolor=self.colors[theme][0], bordercolor=self.colors[theme][0], troughcolor=self.colors[theme][0], thickness=2)
         # raise event
         self.theme_changed(theme)
 

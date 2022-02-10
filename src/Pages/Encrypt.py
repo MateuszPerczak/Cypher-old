@@ -177,3 +177,7 @@ class EncryptPage(ttk.Frame):
         # enable widgets
         for widget in widgets:
             widget.state(["!disabled"])
+
+        # delete all data
+        self.__remove_all()
+        self.password_entry.delete(0, 'end')

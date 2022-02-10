@@ -4,10 +4,11 @@ from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from base64 import urlsafe_b64encode
-from os.path import abspath, expanduser, join, exists
-from os import urandom
+from os.path import expanduser, join, exists
+from os import urandom, remove
 from tkinter import ttk
 from typing import Callable
+from zipfile import ZipFile
 
 
 class Encryptor:
@@ -17,7 +18,7 @@ class Encryptor:
         self._protector: object = protector
         self._progress_page: ttk.Frame = progress_page
         # bindings
-        self.bindings: dict = {'end': [], 'start': [], 'progress': []}
+        self.bindings: dict = {'end': [], 'start': []}
 
     def encrypt(self: object) -> None:
         # notify event
@@ -30,17 +31,37 @@ class Encryptor:
         _key: bytes = self.__generate_key(_salt, _password)
         # remove variables
         del _salt, _password
-
+        # show progress page
+        self._progress_page.lift()
+        # start thread
         Thread(target=self.__worker_thread, args=(_key,), daemon=True).start()
 
+    def __worker_thread(self: object, key: bytes) -> None:
+        _encrypted_zip: bytes = b''
+        _desktop_path: str = join(expanduser("~"), 'Desktop')
+
+        _num_files: int = len(self.files)
+        # set progress
+        self._progress_page.set_max_value(_num_files + 3)
+
+        # create zip file with all files
+        with ZipFile('encrypted.zip', 'w') as zip_file:
+            for index, _file in enumerate(self.files):
+                zip_file.write(_file, _file.split('/')[-1])
+                self._progress_page.set_progress(index)
+        # encrypt zip file
+        with open('encrypted.zip', 'rb') as zip_file:
+            _encrypted_zip = Fernet(key).encrypt(zip_file.read())
+        self._progress_page.set_progress(_num_files + 1)
+        # place encrypted zip file to desktop
+        with open(join(_desktop_path, 'encrypted.zip'), 'wb') as zip_file:
+            zip_file.write(_encrypted_zip)
+        self._progress_page.set_progress(_num_files + 2)
+        # delete old zip file
+        remove('encrypted.zip')
+        self._progress_page.set_progress(_num_files + 3)
         # notify event
         self.__notify('end')
-
-    def __worker_thread(self: object, key: bytes) -> None:
-        print(key)
-        for _file in self.files:
-            self.__notify('progress')
-            print(_file)
 
     def __generate_key(self: object, salt: bytes, password: bytes) -> bytes:
         return urlsafe_b64encode(PBKDF2HMAC(algorithm=hashes.SHA256(), length=32, salt=salt, iterations=100000, backend=default_backend()).derive(password))
