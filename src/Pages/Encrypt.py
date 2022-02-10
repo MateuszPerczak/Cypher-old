@@ -1,5 +1,5 @@
 from tkinter import ttk, PhotoImage, Canvas, Event
-from Components.File import FilePanel
+from Components.File import EncryptionFile
 from tkinter.filedialog import askopenfilenames
 from tkinter import messagebox
 from Components.Hasher import Encryptor
@@ -106,14 +106,19 @@ class EncryptPage(ttk.Frame):
         root.bind('<MouseWheel>', self.__on_wheel)
         left_frame.pack(side='left', fill='both', expand=True)
         # apple theme change
-        self.theme.bind(self.__on_theme_changed)
+        self.theme.bind('changed', self.__on_theme_changed)
 
-    def __on_theme_changed(self: object, theme: object) -> None:
-        self.add_button.configure(image=self.icon_cache['add'][theme])
-        self.remove_button.configure(image=self.icon_cache['remove'][theme])
-        self.password_image.configure(image=self.icon_cache['key'][theme])
-        self.encrypt_button.configure(image=self.icon_cache['start'][theme])
-        self.show_button.configure(image=self.icon_cache['show'][theme])
+    def __on_theme_changed(self: object) -> None:
+        self.add_button.configure(
+            image=self.icon_cache['add'][self.theme.get_theme()])
+        self.remove_button.configure(
+            image=self.icon_cache['remove'][self.theme.get_theme()])
+        self.password_image.configure(
+            image=self.icon_cache['key'][self.theme.get_theme()])
+        self.encrypt_button.configure(
+            image=self.icon_cache['start'][self.theme.get_theme()])
+        self.show_button.configure(
+            image=self.icon_cache['show'][self.theme.get_theme()])
         # update canvas background
         '''change l8er'''
         self.canvas.configure(bg=self._nametowidget('.')['background'])
@@ -138,8 +143,8 @@ class EncryptPage(ttk.Frame):
                 if file in self.files:
                     continue
                 self.files.append(file)
-                FilePanel(self.content, props={
-                          'theme': self.theme, 'file': file, 'icon_cache': self.icon_cache, 'files': self.files}).pack(side='top', fill='x', padx=10, pady=(10, 0))
+                EncryptionFile(self.content, props={
+                    'theme': self.theme, 'file': file, 'icon_cache': self.icon_cache, 'files': self.files}).pack(side='top', fill='x', padx=10, pady=(10, 0))
 
     def __remove_all(self: object) -> None:
         for panel in self.content.winfo_children():

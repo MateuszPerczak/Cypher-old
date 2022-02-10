@@ -13,7 +13,7 @@ class MainPage(ttk.Frame):
         super().__init__(parent)
 
         # variables
-        theme: str = props['theme']
+        self.theme: str = props['theme']
 
         self.selected_page: StringVar = StringVar(value='Encrypt')
 
@@ -37,15 +37,15 @@ class MainPage(ttk.Frame):
         self.menu_panel: ttk.Frame = ttk.Frame(self, style='dark.TFrame')
         # encrypt button
         self.encrypt_button: ttk.Radiobutton = ttk.Radiobutton(
-            self.menu_panel, image=self.icon_cache['encrypt'][theme.get_theme()], variable=self.selected_page, value='encrypt', command=self.__show_page)
+            self.menu_panel, image=self.icon_cache['encrypt'][self.theme.get_theme()], variable=self.selected_page, value='encrypt', command=self.__show_page)
         self.encrypt_button.pack(side='top', anchor='c', padx=10, pady=10)
         # decrypt button
         self.decrypt_button: ttk.Radiobutton = ttk.Radiobutton(
-            self.menu_panel, image=self.icon_cache['decrypt'][theme.get_theme()], variable=self.selected_page, value='decrypt', command=self.__show_page)
+            self.menu_panel, image=self.icon_cache['decrypt'][self.theme.get_theme()], variable=self.selected_page, value='decrypt', command=self.__show_page)
         self.decrypt_button.pack(side='top', anchor='c', padx=10, pady=(0, 10))
         # setings button
         self.settings_button: ttk.Radiobutton = ttk.Radiobutton(
-            self.menu_panel, image=self.icon_cache['settings'][theme.get_theme()], variable=self.selected_page, value='settings', command=self.__show_page)
+            self.menu_panel, image=self.icon_cache['settings'][self.theme.get_theme()], variable=self.selected_page, value='settings', command=self.__show_page)
         self.settings_button.pack(side='bottom', anchor='c', padx=10, pady=10)
 
         self.menu_panel.pack(side='left', fill='both')
@@ -65,7 +65,8 @@ class MainPage(ttk.Frame):
         self.encrypt_page.place(x=0, y=0, relwidth=1, relheight=1)
 
         # decrypt
-        self.decrypt_page: DecryptPage = DecryptPage(self.content_panel)
+        self.decrypt_page: DecryptPage = DecryptPage(
+            self.content_panel, props={'theme': props['theme'], 'protector': props['protector']})
         self.decrypt_page.place(x=0, y=0, relwidth=1, relheight=1)
         # Welcome
         WelcomePage(self.content_panel).place(
@@ -80,13 +81,15 @@ class MainPage(ttk.Frame):
         self.content_panel.pack(side='left', fill='both', expand=True)
 
         # bind theme change
-        theme.bind(self.__on_theme_changed)
+        self.theme.bind('changed', self.__on_theme_changed)
 
-    def __on_theme_changed(self: object, theme: object) -> None:
-        self.encrypt_button.configure(image=self.icon_cache['encrypt'][theme])
-        self.decrypt_button.configure(image=self.icon_cache['decrypt'][theme])
+    def __on_theme_changed(self: object) -> None:
+        self.encrypt_button.configure(
+            image=self.icon_cache['encrypt'][self.theme.get_theme()])
+        self.decrypt_button.configure(
+            image=self.icon_cache['decrypt'][self.theme.get_theme()])
         self.settings_button.configure(
-            image=self.icon_cache['settings'][theme])
+            image=self.icon_cache['settings'][self.theme.get_theme()])
 
     def __show_page(self: object) -> None:
         selected_page: str = self.selected_page.get()

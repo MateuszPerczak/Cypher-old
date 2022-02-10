@@ -26,9 +26,8 @@ class Encryptor:
         # start encryption
         _salt: bytes = self._protector.get_salt()
         _password: bytes = self._protector.encode_password(self.password)
-
         # generate key for encryptopn
-        _key: bytes = self.__generate_key(_salt, _password)
+        _key: bytes = self._protector.generate_key(_salt, _password)
         # remove variables
         del _salt, _password
         # show progress page
@@ -39,11 +38,9 @@ class Encryptor:
     def __worker_thread(self: object, key: bytes) -> None:
         _encrypted_zip: bytes = b''
         _desktop_path: str = join(expanduser("~"), 'Desktop')
-
         _num_files: int = len(self.files)
         # set progress
         self._progress_page.set_max_value(_num_files + 3)
-
         # create zip file with all files
         with ZipFile('encrypted.zip', 'w') as zip_file:
             for index, _file in enumerate(self.files):
@@ -63,9 +60,6 @@ class Encryptor:
         # notify event
         self.__notify('end')
 
-    def __generate_key(self: object, salt: bytes, password: bytes) -> bytes:
-        return urlsafe_b64encode(PBKDF2HMAC(algorithm=hashes.SHA256(), length=32, salt=salt, iterations=100000, backend=default_backend()).derive(password))
-
     def bind(self: object, bind_type: str, methode: Callable) -> None:
         self.bindings[bind_type].append(methode)
 
@@ -75,8 +69,54 @@ class Encryptor:
 
 
 class Decryptor:
-    def __init__(self: object) -> None:
-        pass
+    def __init__(self: object, protector: object) -> None:
+        self.file: str = ''
+        self.password: str = ''
+        self._protector: object = protector
+        # bindings
+        self.bindings: dict = {'end': [],
+                               'start': [], 'success': [], 'error': []}
+
+    def decrypt(self: object) -> None:
+        # notify event
+        self.__notify('start')
+        # start encryption
+        _salt: bytes = self._protector.get_salt()
+        _password: bytes = self._protector.encode_password(self.password)
+
+        # generate key for encryptopn
+        _key: bytes = self._protector.generate_key(_salt, _password)
+        # remove variables
+        del _salt, _password
+        # start thread
+        Thread(target=self.__worker_thread, args=(_key,), daemon=True).start()
+
+    def __worker_thread(self: object, key: bytes) -> None:
+        _encrypted_zip: bytes = b''
+        _desktop_path: str = join(expanduser("~"), 'Desktop')
+
+        with open(self.file, 'rb') as encrypted_zip:
+            _encrypted_zip = encrypted_zip.read()
+        # decrypt zip file
+        try:
+            _decrypted_zip: bytes = Fernet(key).decrypt(_encrypted_zip)
+        except Exception as _:
+            self.__notify('error')
+            return None
+        # place decrypted zip file to desktop
+        with open(join(_desktop_path, 'decrypted.zip'), 'wb') as zip_file:
+            zip_file.write(_decrypted_zip)
+        self.__notify('success')
+
+        # notify event
+        self.__notify('end')
+
+    def bind(self: object, bind_type: str, methode: Callable) -> None:
+        self.bindings[bind_type].append(methode)
+
+    def __notify(self: object, notify_type: str) -> None:
+        for methode in self.bindings[notify_type]:
+            methode()
 
 
 class Protector:
@@ -104,3 +144,6 @@ class Protector:
         for index, letter in enumerate(password):
             _password += chr(ord(letter) + index + self._offset)
         return _password.encode()
+
+    def generate_key(self: object, salt: bytes, password: bytes) -> bytes:
+        return urlsafe_b64encode(PBKDF2HMAC(algorithm=hashes.SHA256(), length=32, salt=salt, iterations=100000, backend=default_backend()).derive(password))

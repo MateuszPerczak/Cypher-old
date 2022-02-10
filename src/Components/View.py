@@ -36,8 +36,8 @@ class Theme:
         self.colors['System'] = self.colors[self.system_theme]
         # set default applied theme
         self.applied_theme: str = 'Light'
-        # methode list
-        self.__binded_methods: list = []
+        # bindings
+        self.bindings: dict = {'changed': []}
 
     def apply(self: object, theme: str) -> None:
         self.applied_theme = theme
@@ -86,8 +86,8 @@ class Theme:
         # progressbar
         self.parent.layout.configure('Horizontal.TProgressbar', background=self.colors[theme][1], lightcolor=self.colors[theme][0],
                                      darkcolor=self.colors[theme][0], bordercolor=self.colors[theme][0], troughcolor=self.colors[theme][0], thickness=2)
-        # raise event
-        self.theme_changed(theme)
+        # notify event
+        self.__notify('changed')
 
     def get_theme(self: object) -> str:
         if self.applied_theme == 'System':
@@ -101,8 +101,17 @@ class Theme:
         for methode in self.__binded_methods:
             methode(theme)
 
-    def bind(self: object, methode: Callable) -> None:
-        self.__binded_methods.append(methode)
-
     def get_colors(self: object, theme: str) -> list:
         return self.colors[theme]
+
+    def bind(self: object, bind_type: str, methode: Callable) -> None:
+        self.bindings[bind_type].append(methode)
+
+    def unbind(self: object, methode: Callable) -> None:
+        for key in self.bindings:
+            if methode in self.bindings[key]:
+                self.bindings[key].remove(methode)
+
+    def __notify(self: object, notify_type: str) -> None:
+        for methode in self.bindings[notify_type]:
+            methode()
