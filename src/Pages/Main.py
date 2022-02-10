@@ -1,6 +1,4 @@
-from distutils import command
 from tkinter import ttk, StringVar, PhotoImage
-from os.path import join
 from Pages.Settings import SettingsPage
 from Pages.Encrypt import EncryptPage
 from Pages.Progress import ProgressPage
