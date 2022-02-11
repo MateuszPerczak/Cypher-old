@@ -8,7 +8,7 @@ from os.path import expanduser, join, exists
 from os import urandom, remove
 from tkinter import ttk
 from typing import Callable
-from zipfile import ZipFile
+from zipfile import ZipFile, ZIP_DEFLATED
 
 
 class Encryptor:
@@ -42,7 +42,7 @@ class Encryptor:
         # set progress
         self._progress_page.set_max_value(_num_files + 3)
         # create zip file with all files
-        with ZipFile('encrypted.zip', 'w') as zip_file:
+        with ZipFile('encrypted.zip', 'w', compression=ZIP_DEFLATED, compresslevel=9) as zip_file:
             for index, _file in enumerate(self.files):
                 zip_file.write(_file, _file.split('/')[-1])
                 self._progress_page.set_progress(index)
