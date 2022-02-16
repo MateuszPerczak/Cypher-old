@@ -1,4 +1,5 @@
 from tkinter import ttk, PhotoImage, StringVar
+from tkinter.filedialog import askopenfilename, asksaveasfile
 
 
 class SettingsPage(ttk.Frame):
@@ -9,6 +10,7 @@ class SettingsPage(ttk.Frame):
             fill='x', padx=10, pady=(10, 5))
 
         Theme(self, props['theme']).pack(fill='x', padx=10, pady=(0, 10))
+        Export(self, props).pack(fill='x', padx=10, pady=(0, 10))
         About(self, props['theme']).pack(fill='x', padx=10, pady=(0, 10))
 
 
@@ -50,9 +52,7 @@ class About(ttk.Frame):
     def __init__(self: object, parent: object, theme: object) -> ttk.Frame:
         super().__init__(parent, style='dark.TFrame')
         # local variable
-
         self.theme = theme
-
         self.icon_cache = {
             'Dark': PhotoImage(file=r'Resources\\Icons\\Dark\\info.png'),
             'Light': PhotoImage(file=r'Resources\\Icons\\Light\\info.png')
@@ -72,3 +72,46 @@ class About(ttk.Frame):
 
     def __on_theme_changed(self: object) -> None:
         self.header.configure(image=self.icon_cache[self.theme.get_theme()])
+
+
+class Export(ttk.Frame):
+    def __init__(self: object, parent: object, props: dict) -> ttk.Frame:
+        super().__init__(parent, style='dark.TFrame')
+        # variables
+        self._protector: object = props['protector']
+        self.theme: object = props['theme']
+
+        self.icon_cache = {
+            'Dark': PhotoImage(file=r'Resources\\Icons\\Dark\\identity.png'),
+            'Light': PhotoImage(file=r'Resources\\Icons\\Light\\identity.png')
+        }
+        # content
+        content_panel: ttk.Frame = ttk.Frame(self, style='dark.TFrame')
+        self.header: ttk.Label = ttk.Label(content_panel, image=self.icon_cache[self.theme.get_theme(
+        )], text='Identity', style='dark.TLabel', compound='left')
+        self.header.pack(side='left', anchor='center', fill='y')
+
+        ttk.Button(content_panel, text='Export', style='center.TButton',
+                   command=self._export_identity).pack(side='right')
+        ttk.Button(content_panel, text='Import', style='center.TButton',
+                   command=self._import_identity).pack(side='right')
+
+        content_panel.pack(side='top', fill='x', pady=10, padx=10)
+
+        # bind theme change
+        self.theme.bind('changed', self.__on_theme_changed)
+
+    def __on_theme_changed(self: object) -> None:
+        self.header.configure(image=self.icon_cache[self.theme.get_theme()])
+
+    def _export_identity(self: object) -> None:
+        _file: object = asksaveasfile(mode='wb', defaultextension='.idt', filetypes=[
+                                      ('Identity file', '.idt')])
+        if _file:
+            _file.write(self._protector.export_identity())
+            _file.close()
+
+    def _import_identity(self: object) -> None:
+        _identity_file: str = askopenfilename(
+            filetypes=[('Identity files', '*.idt')], title='Select identity file')
+        self._protector.import_identity(_identity_file)

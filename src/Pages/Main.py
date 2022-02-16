@@ -51,7 +51,7 @@ class MainPage(ttk.Frame):
         self.content_panel: ttk.Frame = ttk.Frame(self)
         # settings
         self.settings_page: SettingsPage = SettingsPage(
-            self.content_panel, props={'theme': props['theme']})
+            self.content_panel, props={'theme': props['theme'], 'protector': props['protector']})
         self.settings_page.place(x=0, y=0, relwidth=1, relheight=1)
         # progress page
         self.progress_page: ProgressPage = ProgressPage(self.content_panel, props={

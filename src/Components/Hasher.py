@@ -123,6 +123,8 @@ class Protector:
     def __init__(self: object) -> None:
         self._salt: bytes = self.__init_salt()
         self._offset: int = ord(self._salt.decode(errors='ignore')[10])
+        # public key
+        self._public_key: bytes = b'WmgfNWRns0ClyhhdD55T1LO1iD4KLMmiI4ZOI-eZLY0='
 
     def __init_salt(self: object) -> bytes:
         _user_folder: str = join(expanduser("~"), 'AppData', 'Local')
@@ -147,3 +149,18 @@ class Protector:
 
     def generate_key(self: object, salt: bytes, password: bytes) -> bytes:
         return urlsafe_b64encode(PBKDF2HMAC(algorithm=hashes.SHA256(), length=32, salt=salt, iterations=100000, backend=default_backend()).derive(password))
+
+    def export_identity(self: object) -> bytes:
+        return self._encrypt_salt(self._salt)
+
+    def import_identity(self: object, identity_file: str) -> None:
+        _user_folder: str = join(expanduser("~"), 'AppData', 'Local')
+        with open(join(_user_folder, 'slt.bin'), 'wb') as _file:
+            with open(identity_file, 'rb') as _idt_file:
+                _file.write(self._decrypt_salt(_idt_file.read()))
+
+    def _encrypt_salt(self: object, salt: bytes) -> bytes:
+        return Fernet(self._public_key).encrypt(salt)
+
+    def _decrypt_salt(self: object, salt: bytes) -> bytes:
+        return Fernet(self._public_key).decrypt(salt)
