@@ -37,7 +37,7 @@ class Theme(ttk.Frame):
             'Dark'), variable=self.selected_theme).pack(side='right', anchor='center', padx=(0, 10))
         ttk.Radiobutton(theme_panel, text='Light', style='small.TRadiobutton', value='Light', command=lambda: self.theme.apply(
             'Light'), variable=self.selected_theme).pack(side='right', anchor='center', padx=(0, 10))
-        ttk.Radiobutton(theme_panel, text='Dark', style='small.TRadiobutton', value='Dark', command=lambda: self.theme.themee.apply(
+        ttk.Radiobutton(theme_panel, text='Dark', style='small.TRadiobutton', value='Dark', command=lambda: self.theme.apply(
             'Dark'), variable=self.selected_theme).pack(side='right', anchor='center', padx=(0, 10))
         theme_panel.pack(side='top', fill='x', pady=10, padx=10)
         # bind theme change

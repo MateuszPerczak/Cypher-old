@@ -16,6 +16,7 @@ class DecryptPage(ttk.Frame):
         # bind events
         self.decryptor.bind('success', self.__success)
         self.decryptor.bind('error', self.__error)
+        self.decryptor.bind('end', self.__restore_page)
 
         self.icon_cache = {
             'plus': {
@@ -140,6 +141,7 @@ class DecryptPage(ttk.Frame):
 
     def __decrypt(self: object) -> None:
         if self.__verify():
+            self.__freeze_page()
             self.decryptor.file = self.file_path
             self.decryptor.password = self.password_entry.get()
             self.decryptor.decrypt()
@@ -151,3 +153,18 @@ class DecryptPage(ttk.Frame):
 
     def __error(self: object) -> None:
         messagebox.showerror('Cypher', 'Decryption failed')
+
+    def __freeze_page(self: object) -> None:
+        widgets: tuple = (self.add_button, self.remove_button,
+                          self.decrypt_button, self.show_button, self.password_entry)
+        # disable widgets
+        for widget in widgets:
+            widget.state(["disabled"])
+
+    def __restore_page(self: object) -> None:
+        widgets: tuple = (self.add_button, self.remove_button,
+                          self.decrypt_button, self.show_button, self.password_entry)
+        # enable widgets
+        for widget in widgets:
+            widget.state(["!disabled"])
+        print("LOL")

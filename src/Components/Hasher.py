@@ -102,6 +102,7 @@ class Decryptor:
             _decrypted_zip: bytes = Fernet(key).decrypt(_encrypted_zip)
         except Exception as _:
             self.__notify('error')
+            self.__notify('end')
             return None
         # place decrypted zip file to desktop
         with open(join(_desktop_path, 'decrypted.zip'), 'wb') as zip_file:
@@ -158,6 +159,7 @@ class Protector:
         with open(join(_user_folder, 'slt.bin'), 'wb') as _file:
             with open(identity_file, 'rb') as _idt_file:
                 _file.write(self._decrypt_salt(_idt_file.read()))
+                self.__init_salt()
 
     def _encrypt_salt(self: object, salt: bytes) -> bytes:
         return Fernet(self._public_key).encrypt(salt)
