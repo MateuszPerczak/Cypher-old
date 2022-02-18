@@ -61,7 +61,7 @@ class About(ttk.Frame):
         self.header: ttk.Label = ttk.Label(self, image=self.icon_cache[self.theme.get_theme(
         )], text='About Cypher', style='dark.TLabel', compound='left')
         self.header.pack(side='top', fill='x', padx=10, pady=10)
-        ttk.Label(self, text='Version: 1.2.0 Build: 170222',
+        ttk.Label(self, text='Version: 1.2.5 Build: 170222',
                   style='small.dark.TLabel').pack(side='top', fill='x', padx=10)
         ttk.Label(self, text='Author: Mateusz Perczak',
                   style='small.dark.TLabel').pack(side='top', fill='x', padx=10)
