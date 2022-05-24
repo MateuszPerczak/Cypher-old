@@ -13,7 +13,7 @@ class MainPage(ttk.Frame):
         # variables
         self.theme: str = props['theme']
 
-        self.selected_page: StringVar = StringVar(value='Encrypt')
+        self.selected_page: StringVar = StringVar(value='Welcome')
 
         self.icon_cache = {
             'encrypt': {
