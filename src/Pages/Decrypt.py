@@ -167,4 +167,3 @@ class DecryptPage(ttk.Frame):
         # enable widgets
         for widget in widgets:
             widget.state(["!disabled"])
-        print("LOL")

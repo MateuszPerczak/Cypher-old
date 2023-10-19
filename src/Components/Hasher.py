@@ -1,4 +1,5 @@
 from threading import Thread
+from tkinter.filedialog import asksaveasfile
 from cryptography.hazmat.backends import default_backend
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
@@ -50,9 +51,12 @@ class Encryptor:
         with open('encrypted.zip', 'rb') as zip_file:
             _encrypted_zip = Fernet(key).encrypt(zip_file.read())
         self._progress_page.set_progress(_num_files + 1)
-        # place encrypted zip file to desktop
-        with open(join(_desktop_path, 'encrypted.zip'), 'wb') as zip_file:
-            zip_file.write(_encrypted_zip)
+        # ask user where to place decrypted file
+        _file: object = asksaveasfile(mode='wb', defaultextension='.zip', filetypes=[
+                                      ('Zip archive', '.zip')], initialfile="encrypted")
+        if _file:
+            _file.write(_encrypted_zip)
+            _file.close()
         self._progress_page.set_progress(_num_files + 2)
         # delete old zip file
         remove('encrypted.zip')
@@ -93,7 +97,6 @@ class Decryptor:
 
     def __worker_thread(self: object, key: bytes) -> None:
         _encrypted_zip: bytes = b''
-        _desktop_path: str = join(expanduser("~"), 'Desktop')
 
         with open(self.file, 'rb') as encrypted_zip:
             _encrypted_zip = encrypted_zip.read()
@@ -104,10 +107,13 @@ class Decryptor:
             self.__notify('error')
             self.__notify('end')
             return None
-        # place decrypted zip file to desktop
-        with open(join(_desktop_path, 'decrypted.zip'), 'wb') as zip_file:
-            zip_file.write(_decrypted_zip)
-        self.__notify('success')
+        # ask user where to place decrypted file
+        _file: object = asksaveasfile(mode='wb', defaultextension='.zip', filetypes=[
+                                      ('Zip archive', '.zip')], initialfile="decrypted")
+        if _file:
+            _file.write(_decrypted_zip)
+            _file.close()
+            self.__notify('success')
 
         # notify event
         self.__notify('end')

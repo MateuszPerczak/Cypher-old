@@ -2,10 +2,11 @@ try:
     from tkinter import Tk
     from Components import View
     from Components.Hasher import Protector
-    from Components.Debugger import Debugger
+    # from Components.Debugger import Debugger
     from Pages.Init import InitPage
     from Pages.Main import MainPage
     from os.path import join
+    from TkDeb.TkDeb import Debugger
 except Exception as err:
     exit(err)
 
@@ -25,12 +26,10 @@ class Cypher(Tk):
         # init theme
         self.theme: object = View.Theme(self)
         self.theme.apply('System')
-
         # protector instance
         self._protector: Protector = Protector()
         # debugger instance
         self.bind('<F12>', lambda _: Debugger(self))
-
         self.init_page: InitPage = InitPage(self)
         self.init_page.place(x=0, y=0, relwidth=1, relheight=1)
         self.deiconify()
